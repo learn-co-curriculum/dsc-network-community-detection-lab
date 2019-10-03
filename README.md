@@ -8,7 +8,7 @@ In this lab, you'll once again work to cluster a network dataset. This time, you
 ## Objectives
 
 You will be able to:
-* Cluster a social network into subgroups
+- Cluster a social network into subgroups
 
 ## Load the Dataset
 
