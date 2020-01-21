@@ -3,27 +3,33 @@
 
 ## Introduction
 
-In this lab, you'll once again work to cluster a network dataset. This time, you'll be investigating a meetup dataset for events occurring in Nashville.
+In this lab, you'll once again work to cluster a network dataset. This time, you'll be investigating a [Meetup](https://www.meetup.com/) dataset for events occurring in Nashville.
 
 ## Objectives
 
-You will be able to:
-- Cluster a social network into subgroups
+You will be able to: 
+
+- Make visualizations of clusters and gain insights about how the clusters have formed 
+- Cluster a real-life social network dataset to detect communities within the network  
+
 
 ## Load the Dataset
 
-To start, load the dataset `'nashville-meetup/group-edges.csv'` as a pandas Dataframe. 
+To get started, load the dataset `'nashville-meetup/group-edges.csv'` as a pandas Dataframe. 
 
 
 ```python
-#Your code here
+# Your code here
+
+groups = None
 ```
 
 To add some descriptive data, import the file `'nashville-meetup/meta-groups.csv'`.
 
 
 ```python
-#Your code here
+# Your code here
+groups_meta = None
 ```
 
 ## Transform to a Network Representation
@@ -32,14 +38,14 @@ Take the Pandas DataFrame and transform it into a graph representation via Netwo
 
 
 ```python
-#Your code here
+# Your code here
 ```
 
 ## Visualize the Network
 
 
 ```python
-#Your code here
+# Your code here
 ```
 
 ## Refine the Visual
@@ -48,16 +54,16 @@ As you should see, the initial visualization is a globular mess! Refine the visu
 
 
 ```python
-#Your code here
+# Your code here
 ```
 
-## Try Clustering the Network
+## Cluster the Network
 
 Now, that the dataset is a little more manageable, try clustering the remaining group nodes.
 
 
 ```python
-#Your code here
+# Your code here
 ```
 
 ## Determine An Optimal Clustering Schema
@@ -66,7 +72,7 @@ Finally, determine a final clustering organization.
 
 
 ```python
-#Your code here
+# Your code here
 ```
 
 ## Visualize the Clusters
@@ -75,7 +81,7 @@ Analyze the output of your clustering schema. Do any clusters of groups stand ou
 
 
 ```python
-#Your code here
+# Your code here
 ```
 
 ## Summary
