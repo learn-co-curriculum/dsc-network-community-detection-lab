@@ -3,21 +3,24 @@
 
 ## Introduction
 
-In this lab, you'll once again work to cluster a network dataset. This time, you'll be investigating a meetup dataset for events occurring in Nashville.
+In this lab, you'll once again work to cluster a network dataset. This time, you'll be investigating a [Meetup](https://www.meetup.com/) dataset for events occurring in Nashville.
 
 ## Objectives
 
-You will be able to:
-- Cluster a social network into subgroups
+You will be able to: 
+
+- Make visualizations of clusters and gain insights about how the clusters have formed 
+- Cluster a real-life social network dataset to detect communities within the network  
+
 
 ## Load the Dataset
 
-To start, load the dataset `'nashville-meetup/group-edges.csv'` as a pandas Dataframe. 
+To get started, load the dataset `'nashville-meetup/group-edges.csv'` as a pandas Dataframe. 
 
 
 ```python
 import pandas as pd
-groups = pd.read_csv('nashville-meetup/group-edges.csv')
+groups = pd.read_csv('nashville-meetup/group-edges.csv', index_col=0)
 groups.head()
 ```
 
@@ -42,7 +45,6 @@ groups.head()
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>Unnamed: 0</th>
       <th>group1</th>
       <th>group2</th>
       <th>weight</th>
@@ -50,36 +52,31 @@ groups.head()
   </thead>
   <tbody>
     <tr>
-      <td>0</td>
-      <td>0</td>
+      <th>0</th>
       <td>19292162</td>
       <td>535553</td>
       <td>2</td>
     </tr>
     <tr>
-      <td>1</td>
-      <td>1</td>
+      <th>1</th>
       <td>19292162</td>
       <td>19194894</td>
       <td>1</td>
     </tr>
     <tr>
-      <td>2</td>
-      <td>2</td>
+      <th>2</th>
       <td>19292162</td>
       <td>19728145</td>
       <td>1</td>
     </tr>
     <tr>
-      <td>3</td>
-      <td>3</td>
+      <th>3</th>
       <td>19292162</td>
       <td>18850080</td>
       <td>2</td>
     </tr>
     <tr>
-      <td>4</td>
-      <td>4</td>
+      <th>4</th>
       <td>19292162</td>
       <td>1728035</td>
       <td>1</td>
@@ -130,7 +127,7 @@ groups_meta.head()
   </thead>
   <tbody>
     <tr>
-      <td>0</td>
+      <th>0</th>
       <td>339011</td>
       <td>Nashville Hiking Meetup</td>
       <td>15838</td>
@@ -140,7 +137,7 @@ groups_meta.head()
       <td>nashville-hiking</td>
     </tr>
     <tr>
-      <td>1</td>
+      <th>1</th>
       <td>19728145</td>
       <td>Stepping Out Social Dance Meetup</td>
       <td>1778</td>
@@ -150,7 +147,7 @@ groups_meta.head()
       <td>steppingoutsocialdance</td>
     </tr>
     <tr>
-      <td>2</td>
+      <th>2</th>
       <td>6335372</td>
       <td>Nashville soccer</td>
       <td>2869</td>
@@ -160,7 +157,7 @@ groups_meta.head()
       <td>Nashville-soccer</td>
     </tr>
     <tr>
-      <td>3</td>
+      <th>3</th>
       <td>10016242</td>
       <td>NashJS</td>
       <td>1975</td>
@@ -170,7 +167,7 @@ groups_meta.head()
       <td>nashjs</td>
     </tr>
     <tr>
-      <td>4</td>
+      <th>4</th>
       <td>21174496</td>
       <td>20's &amp; 30's Women looking for girlfriends</td>
       <td>2782</td>
@@ -209,11 +206,16 @@ for row in groups.index:
 import matplotlib.pyplot as plt
 %matplotlib inline
 
-nx.draw(G, pos=nx.spring_layout(G, k=2, seed=5), alpha=.8, node_color="#32cefe")
+nx.draw(G, pos=nx.spring_layout(G, k=2, seed=5), alpha=.8, node_color='#32cefe')
 ```
 
+    //anaconda3/lib/python3.7/site-packages/networkx/drawing/nx_pylab.py:579: MatplotlibDeprecationWarning: 
+    The iterable function was deprecated in Matplotlib 3.1 and will be removed in 3.3. Use np.iterable instead.
+      if not cb.iterable(width):
 
-![png](index_files/index_8_0.png)
+
+
+![png](index_files/index_7_1.png)
 
 
 ## Refine the Visual
@@ -223,7 +225,7 @@ As you should see, the initial visualization is a globular mess! Refine the visu
 
 ```python
 for i in range(0,100,5):
-    print("{}th percentile: {}".format(i,groups.weight.quantile(q=i/100)))
+    print('{}th percentile: {}'.format(i,groups.weight.quantile(q=i/100)))
 ```
 
     0th percentile: 1.0
@@ -260,12 +262,12 @@ for row in groups.index:
         G_subset.add_edge(g1, g2, weight=weight)
 plt.figure(figsize=(30,20))
 nx.draw(G_subset, pos=nx.spring_layout(G_subset, k=2, seed=5),
-        alpha=.8, node_color="#32cefe", node_size=5000,
-        with_labels=True, font_size=12, font_weight="bold")
+        alpha=.8, node_color='#32cefe', node_size=5000,
+        with_labels=True, font_size=12, font_weight='bold')
 ```
 
 
-![png](index_files/index_11_0.png)
+![png](index_files/index_10_0.png)
 
 
 
@@ -280,7 +282,7 @@ len(G_subset)
 
 
 
-## Try Clustering the Network
+## Cluster the Network
 
 Now, that the dataset is a little more manageable, try clustering the remaining group nodes.
 
@@ -288,7 +290,7 @@ Now, that the dataset is a little more manageable, try clustering the remaining 
 ```python
 gn_clusters = list(nx.algorithms.community.centrality.girvan_newman(G_subset))
 for n, clusters in enumerate(gn_clusters):
-    print("After removing {} edges, there are {} clusters.".format(n, len(clusters)))
+    print('After removing {} edges, there are {} clusters.'.format(n, len(clusters)))
 ```
 
     After removing 0 edges, there are 7 clusters.
@@ -442,13 +444,13 @@ Finally, determine a final clustering organization.
 import numpy as np
 import seaborn as sns
 sns.set_style('darkgrid')
-colors = ["#1cf0c7","#ffd43d","#00b3e6","#32cefe","#efefef",
-          "#1443ff","#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99",
-          "#e31a1c","#fdbf6f","#ff7f00","#cab2d6","#6a3d9a","#ffff99",
-          "#b15928","#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3",
-          "#fdb462","#b3de69","#fccde5","#d9d9d9","#bc80bd","#ccebc5",
-          "#ffed6f","#bf812d","#dfc27d","#f6e8c3","#f5f5f5","#c7eae5",
-          "#80cdc1", "#35978f", "#01665e", "#003c30"]
+colors = ['#1cf0c7','#ffd43d','#00b3e6','#32cefe','#efefef',
+          '#1443ff','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99',
+          '#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#ffff99',
+          '#b15928','#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3',
+          '#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd','#ccebc5',
+          '#ffed6f','#bf812d','#dfc27d','#f6e8c3','#f5f5f5','#c7eae5',
+          '#80cdc1', '#35978f', '#01665e', '#003c30']
 
 fig = plt.figure(figsize=(12,10))
 
@@ -482,7 +484,7 @@ plt.show()
 ```
 
 
-![png](index_files/index_16_0.png)
+![png](index_files/index_15_0.png)
 
 
 ## Visualize the Clusters
@@ -494,39 +496,43 @@ Analyze the output of your clustering schema. Do any clusters of groups stand ou
 def plot_girvan_newman(G, clusters):
     #Your code here
     fig = plt.figure(figsize=(35,20))
-    colors = ["#1cf0c7","#ffd43d","#00b3e6","#32cefe","#efefef",
-          "#1443ff","#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99",
-          "#e31a1c","#fdbf6f","#ff7f00","#cab2d6","#6a3d9a","#ffff99",
-          "#b15928","#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3",
-          "#fdb462","#b3de69","#fccde5","#d9d9d9","#bc80bd","#ccebc5",
-          "#ffed6f","#bf812d","#dfc27d","#f6e8c3","#f5f5f5","#c7eae5",
-          "#80cdc1", "#35978f", "#01665e", "#003c30"]
+    colors = ['#1cf0c7','#ffd43d','#00b3e6','#32cefe','#efefef',
+              '#1443ff','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99',
+              '#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#ffff99',
+              '#b15928','#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3',
+              '#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd','#ccebc5',
+              '#ffed6f','#bf812d','#dfc27d','#f6e8c3','#f5f5f5','#c7eae5',
+              '#80cdc1', '#35978f', '#01665e', '#003c30']
     for n , c in enumerate(clusters):
         ci = G.subgraph(c)
         nx.draw(ci, pos=nx.spring_layout(G_subset, k=3.6, seed=3), with_labels=True, node_color=colors[n],
-                alpha=.8, node_size=20000, font_weight="bold", font_size=20)
+                alpha=0.8, node_size=20000, font_weight='bold', font_size=20)
     plt.show()
 sns.set_style('white')
 plot_girvan_newman(G_subset, gn_clusters[20])
-
 ```
 
+    //anaconda3/lib/python3.7/site-packages/networkx/drawing/nx_pylab.py:579: MatplotlibDeprecationWarning: 
+    The iterable function was deprecated in Matplotlib 3.1 and will be removed in 3.3. Use np.iterable instead.
+      if not cb.iterable(width):
 
-![png](index_files/index_18_0.png)
+
+
+![png](index_files/index_17_1.png)
 
 
 
 ```python
-#Because the Network is still dense and names are long, organizing the clusters as a Pandas dataframe is appropriate
+# Because the Network is still dense and names are long, organizing the clusters as a Pandas dataframe is appropriate
 clusters = pd.DataFrame(gn_clusters[20]).transpose()
-clusters.columns = ["Cluster{}".format(i) for i in range(1,len(clusters.columns)+1)]
+clusters.columns = ['Cluster{}'.format(i) for i in range(1,len(clusters.columns)+1)]
 clusters
 
-#Many of the clusters are easily identifiable;
-#You can see that cluster 1 is a technology group,
-#cluster 2 is a social hodgepodge,
-#cluster3 is outdoor enthusiasts,
-#cluster4 is gamers, and so forth
+# Many of the clusters are easily identifiable;
+# You can see that cluster 1 is a technology group,
+# cluster 2 is a social hodgepodge,
+# cluster3 is outdoor enthusiasts,
+# cluster4 is gamers, and so forth
 ```
 
 
@@ -575,68 +581,68 @@ clusters
   </thead>
   <tbody>
     <tr>
-      <td>0</td>
-      <td>Design Thinking Nashville</td>
-      <td>¡Diablos Que Bailan! (Salsa Nashville)</td>
-      <td>Paddle Adventures Unlimited</td>
-      <td>The Greater Nashville RPG and Board Gamers Group</td>
+      <th>0</th>
+      <td>Nashville CocoaHeads</td>
+      <td>Fun Happenings Social Group-Nashvilles Most Fu...</td>
+      <td>Mount Juliet/Wilson County Hiking &amp; Outdoors</td>
+      <td>Board Game Lovers Meetup</td>
       <td>Nashville Animal Advocacy</td>
-      <td>Sunday Assembly Nashville</td>
-      <td>Nashville Bitcoin Meetup</td>
+      <td>The Nashville Singer, Musician and Songwriter ...</td>
+      <td>Ethereum Nashville</td>
       <td>Nashville Kubernetes Meetup</td>
-      <td>Nashville LGBT Game Night Meetup</td>
-      <td>SCORE Nashville Events, Networking and Workshops</td>
+      <td>40 and over gay men for social gatherings</td>
+      <td>Business Connections Networking Group</td>
       <td>...</td>
-      <td>Make Nashville Meetup</td>
-      <td>Nashville Alternative Health &amp; Wellness</td>
+      <td>MTRAS ~ MidTn Robotic Arts Society</td>
+      <td>Spiritual Psychology and Consciousness Group</td>
       <td>Nashville Virtual Reality Meetup</td>
-      <td>Real Estate Investors of Nashville Meetup Group</td>
+      <td>Tennessee Real Estate Investors Meetup</td>
       <td>Nashville Conda, R, Julia Users Group</td>
-      <td>Transition Nashville</td>
+      <td>Cumberland Green Bioregional Council</td>
       <td>Nashville Christian Technologists and Entrepre...</td>
       <td>Nashville Pilgrimage Hiking &amp; Walking Meetup G...</td>
       <td>Savvy Coders - Nashville</td>
       <td>Nashville Software Automation Professionals</td>
     </tr>
     <tr>
-      <td>1</td>
-      <td>Nash |&gt; Elixir</td>
-      <td>20's &amp; 30's Women looking for girlfriends</td>
-      <td>Nashville Kayak Lessons</td>
+      <th>1</th>
+      <td>Nashville DevOps Meetup</td>
+      <td>Transplant Nashville</td>
+      <td>Middle Tennessee Sierra Club Outings and Adven...</td>
       <td>Nashville Area Gamer Association - NAGA</td>
       <td>Nashvegans!</td>
-      <td>The Nashville Songwriters Meetup Group</td>
+      <td>Sunday Assembly Nashville</td>
       <td>Nashville Blockchain Meetup</td>
       <td>None</td>
-      <td>40 and over gay men for social gatherings</td>
-      <td>Franklin AM - Networking</td>
+      <td>Nashville LGBT Game Night Meetup</td>
+      <td>SCORE Nashville Events, Networking and Workshops</td>
       <td>...</td>
-      <td>MTRAS ~ MidTn Robotic Arts Society</td>
+      <td>Make Nashville Meetup</td>
       <td>Nashville Psychic Meetup</td>
       <td>None</td>
-      <td>Tennessee Real Estate Investors Meetup</td>
+      <td>Real Estate Investors of Nashville Meetup Group</td>
       <td>None</td>
-      <td>Cumberland Green Bioregional Council</td>
+      <td>Transition Nashville</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>
     </tr>
     <tr>
-      <td>2</td>
-      <td>Nashville Online Entrepreneurs</td>
-      <td>Movie Lovers:  New, Classic, and Foreign Films...</td>
-      <td>Nashville Outdoor Adventures Club</td>
-      <td>Board Game Lovers Meetup</td>
+      <th>2</th>
+      <td>Developer Launchpad Nashville</td>
+      <td>1-on-1 Conversations Nashville</td>
+      <td>Nashville Kayak Lessons</td>
+      <td>The Greater Nashville RPG and Board Gamers Group</td>
       <td>None</td>
-      <td>The Nashville Singer, Musician and Songwriter ...</td>
-      <td>Ethereum Nashville</td>
+      <td>Tennessee Americans United for Separation of C...</td>
+      <td>Nashville Bitcoin Meetup</td>
       <td>None</td>
       <td>None</td>
-      <td>Mastermind Business Networkers</td>
+      <td>Nashville's Society of Women Business Owners (...</td>
       <td>...</td>
       <td>None</td>
-      <td>The Middle TN Alternative Health Meetup Group</td>
+      <td>NASHVILLE REIKI &amp; OILS</td>
       <td>None</td>
       <td>Nashville Real Estate Investor Network</td>
       <td>None</td>
@@ -647,17 +653,41 @@ clusters
       <td>None</td>
     </tr>
     <tr>
-      <td>3</td>
-      <td>Nashville Salesforce Admins &amp; Developers Group</td>
-      <td>Thinking Christians Book Club</td>
-      <td>Mount Juliet/Wilson County Hiking &amp; Outdoors</td>
+      <th>3</th>
+      <td>Nashville Product Meetup</td>
+      <td>Nashville Hiking Meetup</td>
+      <td>Paddle Adventures Unlimited</td>
       <td>None</td>
       <td>None</td>
-      <td>Tennessee Americans United for Separation of C...</td>
+      <td>The Nashville Songwriters Meetup Group</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>
-      <td>Bellevue Business Networking Meetup</td>
+      <td>Nashville Networking Business Luncheon</td>
+      <td>...</td>
+      <td>None</td>
+      <td>Nashville Alternative Health &amp; Wellness</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Nash.rb</td>
+      <td>Nashville Young Professionals Meetup</td>
+      <td>Nashville Outdoor Adventures Club</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>WOMEN "Word of Mouth Entrepreneurial Networkers"</td>
       <td>...</td>
       <td>None</td>
       <td>Wellness Nashville</td>
@@ -671,20 +701,20 @@ clusters
       <td>None</td>
     </tr>
     <tr>
-      <td>4</td>
-      <td>Nashville UX</td>
-      <td>Blues Dance Nashville</td>
-      <td>Middle Tennessee Sierra Club Outings and Adven...</td>
+      <th>5</th>
+      <td>Nashville Java Users' Group</td>
+      <td>Nashville Pick-a-Flick</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>
-      <td>Middle Tennessee Entrepreneurs MasterMind Meetup</td>
+      <td>None</td>
+      <td>Networking Today Int'l -Middle Tennessee</td>
       <td>...</td>
       <td>None</td>
-      <td>Spiritual Psychology and Consciousness Group</td>
+      <td>The Middle TN Alternative Health Meetup Group</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>
@@ -695,9 +725,9 @@ clusters
       <td>None</td>
     </tr>
     <tr>
-      <td>5</td>
-      <td>NashBI</td>
-      <td>Nashville Ladies Volunteering and Having Fun</td>
+      <th>6</th>
+      <td>Greater Nashville Healthcare Analytics</td>
+      <td>Fun Happenings Travel &amp; Adventure Group</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>
@@ -705,31 +735,7 @@ clusters
       <td>None</td>
       <td>None</td>
       <td>None</td>
-      <td>Greater Nashville Networking Group</td>
-      <td>...</td>
-      <td>None</td>
-      <td>NASHVILLE REIKI &amp; OILS</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>6</td>
-      <td>Nashville Software Beginners</td>
-      <td>Middle TN 40+ singles</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Nashville Networking Business Luncheon</td>
+      <td>Mastermind Business Networkers</td>
       <td>...</td>
       <td>None</td>
       <td>None</td>
@@ -743,33 +749,9 @@ clusters
       <td>None</td>
     </tr>
     <tr>
-      <td>7</td>
-      <td>State &amp; Local Government Developers Network</td>
-      <td>Strictly Belcourt</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Business Connections Networking Group</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>8</td>
-      <td>Nashville Modern Excel &amp; Power BI User Group</td>
-      <td>North Nashville Party Chicks</td>
+      <th>7</th>
+      <td>Nashville Game Developers</td>
+      <td>Music City Jazz Fans</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>
@@ -791,9 +773,9 @@ clusters
       <td>None</td>
     </tr>
     <tr>
-      <td>9</td>
-      <td>PyNash</td>
-      <td>Music City Jazz Fans</td>
+      <th>8</th>
+      <td>The Iron Yard - Nashville</td>
+      <td>Nashville Backpacker Meetup</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>
@@ -801,7 +783,7 @@ clusters
       <td>None</td>
       <td>None</td>
       <td>None</td>
-      <td>Networking Today Int'l -Middle Tennessee</td>
+      <td>Middle Tennessee Entrepreneurs MasterMind Meetup</td>
       <td>...</td>
       <td>None</td>
       <td>None</td>
@@ -815,57 +797,9 @@ clusters
       <td>None</td>
     </tr>
     <tr>
-      <td>10</td>
-      <td>All Things Angular</td>
-      <td>Eat Love Nash</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Nashville's Society of Women Business Owners (...</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>11</td>
-      <td>Nashville Mobile Developers</td>
-      <td>Nashville Hiking Meetup</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Network Middle Tennessee</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>12</td>
-      <td>freeCodeCamp Nashville</td>
-      <td>Fun Happenings Social Group-Nashvilles Most Fu...</td>
+      <th>9</th>
+      <td>Franklin Developer Lunch &amp; Learn</td>
+      <td>Tails of the Trail</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>
@@ -887,128 +821,8 @@ clusters
       <td>None</td>
     </tr>
     <tr>
-      <td>13</td>
-      <td>The Nashville Microsoft Azure Users Group</td>
-      <td>The Joy of Dining Out with Friends Meetup</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>WOMEN "Word of Mouth Entrepreneurial Networkers"</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>14</td>
-      <td>Nashville Amazon Web Services User Group</td>
-      <td>20s in Nashville</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>15</td>
-      <td>The Iron Yard - Nashville</td>
-      <td>Nashville Backpacker Meetup</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>16</td>
-      <td>Greater Nashville Healthcare Analytics</td>
-      <td>Team Green Adventures</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>17</td>
-      <td>Nashville Music Programmers</td>
-      <td>Stepping Out Social Dance Meetup</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>18</td>
-      <td>Nashville Mobile .NET Developers</td>
+      <th>10</th>
+      <td>Nashville Online Entrepreneurs</td>
       <td>Euchre in Nashville</td>
       <td>None</td>
       <td>None</td>
@@ -1017,7 +831,7 @@ clusters
       <td>None</td>
       <td>None</td>
       <td>None</td>
-      <td>None</td>
+      <td>Greater Nashville Networking Group</td>
       <td>...</td>
       <td>None</td>
       <td>None</td>
@@ -1031,9 +845,9 @@ clusters
       <td>None</td>
     </tr>
     <tr>
-      <td>19</td>
-      <td>WordPress Nashville</td>
-      <td>Nashville 80s Music &amp; More Meetup</td>
+      <th>11</th>
+      <td>PyNash</td>
+      <td>20's &amp; 30's Women looking for girlfriends</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>
@@ -1041,7 +855,7 @@ clusters
       <td>None</td>
       <td>None</td>
       <td>None</td>
-      <td>None</td>
+      <td>Network Middle Tennessee</td>
       <td>...</td>
       <td>None</td>
       <td>None</td>
@@ -1055,9 +869,9 @@ clusters
       <td>None</td>
     </tr>
     <tr>
-      <td>20</td>
-      <td>Nashville Linux Users Group</td>
-      <td>Nashville Purely Social and Super-Awesome Soci...</td>
+      <th>12</th>
+      <td>Design Thinking Nashville</td>
+      <td>What the Pho!</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>
@@ -1065,7 +879,7 @@ clusters
       <td>None</td>
       <td>None</td>
       <td>None</td>
-      <td>None</td>
+      <td>Bellevue Business Networking Meetup</td>
       <td>...</td>
       <td>None</td>
       <td>None</td>
@@ -1079,57 +893,9 @@ clusters
       <td>None</td>
     </tr>
     <tr>
-      <td>21</td>
-      <td>Data Science Nashville</td>
-      <td>1-on-1 Conversations Nashville</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>22</td>
-      <td>Code for Nashville</td>
-      <td>Nashville Network After Work - Business Networ...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>23</td>
+      <th>13</th>
       <td>Nashville Women Programmers</td>
-      <td>Middle Tennessee Hiking Meetup</td>
+      <td>The Joy of Dining Out with Friends Meetup</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>
@@ -1137,7 +903,7 @@ clusters
       <td>None</td>
       <td>None</td>
       <td>None</td>
-      <td>None</td>
+      <td>Franklin AM - Networking</td>
       <td>...</td>
       <td>None</td>
       <td>None</td>
@@ -1151,32 +917,8 @@ clusters
       <td>None</td>
     </tr>
     <tr>
-      <td>24</td>
-      <td>Franklin Developer Lunch &amp; Learn</td>
-      <td>Music City Drinking Buddies</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>25</td>
-      <td>NashJS</td>
+      <th>14</th>
+      <td>Nashville Linux Users Group</td>
       <td>Music City Young Professionals</td>
       <td>None</td>
       <td>None</td>
@@ -1199,9 +941,9 @@ clusters
       <td>None</td>
     </tr>
     <tr>
-      <td>26</td>
-      <td>Nashville SEO &amp; Internet Marketing, Over 1,600...</td>
-      <td>Nashville Pick-a-Flick</td>
+      <th>15</th>
+      <td>Nashville UX</td>
+      <td>Strictly Belcourt</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>
@@ -1223,176 +965,8 @@ clusters
       <td>None</td>
     </tr>
     <tr>
-      <td>27</td>
-      <td>Nashville API Developers</td>
-      <td>Brentwood Happy Hour / Dining Out Meetup</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>28</td>
-      <td>Nashville Machine Learning Meetup</td>
-      <td>Transplant Nashville</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>29</td>
-      <td>Nashville Product Meetup</td>
-      <td>Tennessee Hiking Group</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>30</td>
-      <td>Nashville Game Developers</td>
-      <td>Nashville Young Professionals Meetup</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>31</td>
-      <td>Nashville PHP User Group</td>
-      <td>Nashville Christian Singles</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>32</td>
-      <td>Nash.rb</td>
-      <td>Tails of the Trail</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>33</td>
-      <td>Agile Nashville User Group</td>
-      <td>Fun Happenings Travel &amp; Adventure Group</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>34</td>
-      <td>NashMicro - The Nashville Microcontroller Make...</td>
+      <th>16</th>
+      <td>Data Science Nashville</td>
       <td>Nashville Spanish Meetup</td>
       <td>None</td>
       <td>None</td>
@@ -1415,9 +989,9 @@ clusters
       <td>None</td>
     </tr>
     <tr>
-      <td>35</td>
-      <td>Nashville DevOps Meetup</td>
-      <td>What the Pho!</td>
+      <th>17</th>
+      <td>Nash |&gt; Elixir</td>
+      <td>Nashville Ladies Volunteering and Having Fun</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>
@@ -1439,33 +1013,9 @@ clusters
       <td>None</td>
     </tr>
     <tr>
-      <td>36</td>
-      <td>NashReact</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>37</td>
-      <td>Developer Launchpad Nashville</td>
-      <td>None</td>
+      <th>18</th>
+      <td>NashJS</td>
+      <td>Nashville Network After Work - Business Networ...</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>
@@ -1487,33 +1037,9 @@ clusters
       <td>None</td>
     </tr>
     <tr>
-      <td>38</td>
-      <td>Nashville CocoaHeads</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <td>39</td>
-      <td>Nashville Java Users' Group</td>
-      <td>None</td>
+      <th>19</th>
+      <td>Nashville PHP User Group</td>
+      <td>Tennessee Hiking Group</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>
@@ -1535,8 +1061,488 @@ clusters
       <td>None</td>
     </tr>
     <tr>
-      <td>40</td>
+      <th>20</th>
+      <td>Nashville Software Beginners</td>
+      <td>Thinking Christians Book Club</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>Agile Nashville User Group</td>
+      <td>20s in Nashville</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>All Things Angular</td>
+      <td>Movie Lovers:  New, Classic, and Foreign Films...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>freeCodeCamp Nashville</td>
+      <td>North Nashville Party Chicks</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>WordPress Nashville</td>
+      <td>Eat Love Nash</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>Nashville Salesforce Admins &amp; Developers Group</td>
+      <td>Nashville 80s Music &amp; More Meetup</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>Nashville Machine Learning Meetup</td>
+      <td>Middle TN 40+ singles</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>NashMicro - The Nashville Microcontroller Make...</td>
+      <td>Team Green Adventures</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>28</th>
       <td>Nashville .NET User Group</td>
+      <td>Stepping Out Social Dance Meetup</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>Nashville Mobile .NET Developers</td>
+      <td>Nashville Purely Social and Super-Awesome Soci...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>Nashville Music Programmers</td>
+      <td>Middle Tennessee Hiking Meetup</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>NashBI</td>
+      <td>Music City Drinking Buddies</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>32</th>
+      <td>State &amp; Local Government Developers Network</td>
+      <td>Nashville Christian Singles</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>33</th>
+      <td>The Nashville Microsoft Azure Users Group</td>
+      <td>¡Diablos Que Bailan! (Salsa Nashville)</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>34</th>
+      <td>Nashville Modern Excel &amp; Power BI User Group</td>
+      <td>Blues Dance Nashville</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>Nashville Mobile Developers</td>
+      <td>Brentwood Happy Hour / Dining Out Meetup</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>Nashville Amazon Web Services User Group</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>37</th>
+      <td>Nashville SEO &amp; Internet Marketing, Over 1,600...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>38</th>
+      <td>Code for Nashville</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>39</th>
+      <td>Nashville API Developers</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>NashReact</td>
       <td>None</td>
       <td>None</td>
       <td>None</td>
